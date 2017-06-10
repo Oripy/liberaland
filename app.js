@@ -21,7 +21,7 @@ var db = mongoose.connection;
 db.on('error', console.error.bind(console, 'MongoDB connection error: '));
 
 var Items = require(path.join(__dirname, '/models/items'));
-var Map = require(path.join(__dirname, '/models/map'));
+var Maps = require(path.join(__dirname, '/models/map'));
 var Users = require(path.join(__dirname, '/models/users'));
 var Messages = require(path.join(__dirname, '/models/messages'));
 
@@ -207,6 +207,10 @@ io.sockets.on('connection', function(socket) {
           });
         });
       });
+      Maps.find().populate('item').exec( function(err, tiles) {
+        if (err) throw err;
+        socket.emit('load_map', tiles);
+      });
     });
 
     socket.on('message', function(input) {
@@ -237,6 +241,11 @@ io.sockets.on('connection', function(socket) {
       Items.find().exec( function(err, items_list) {
         if (err) throw err;
         socket.emit('load_items', items_list);
+      });
+      Maps.find().populate('item').exec( function(err, tiles) {
+        console.log(tiles);
+        if (err) throw err;
+        socket.emit('load_map', tiles);
       });
     });
 

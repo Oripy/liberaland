@@ -1,8 +1,11 @@
+new p5();
+
 var coordinates = /\[([a-zA-Z]+)([0-9]+)\]/g;
 var item = /\{([\w]+)\}/g;
 var action = /\*([\w]+)\*/g;
 var player = /@([\w]+)/g;
 var money = /([0-9]+)\$/g;
+
 var user = null;
 var msgselected = "chat";
 var newmsgs = [null,null,null,null,null,null,null,null,null,null];
@@ -13,8 +16,42 @@ var items = {};
 var users = [];
 var actions = ["tuer", "donne"];
 
+var map = [];
+var topcorner = {x: 10, y: 10};
+var view = {x: 10, y: 10};
+var tile_width = 80;
+var players_board_x = tile_width*7+50;
+
 var x_range = 26;
 var y_range = 26;
+
+function setup() {
+  canvas = createCanvas(view.x*tile_width, view.y*tile_width);
+  canvas.parent("map");
+  textAlign(LEFT, TOP);
+  noLoop();
+}
+
+function draw() {
+  background(255);
+
+  // for (var i = view[0]; i < view[0]+7; i++) {
+  //   text(String.fromCharCode(65 + i), 45+(i-view[0])*tile_width+19, 2);
+  //   for (var j = view[1]; j < view[1]+7; j++) {
+  //     if (i == view[0]) {
+  //       text(j, 2, 45+(j-view[1])*tile_width+19);
+  //     }
+  //     map[i+j*100].show();
+  //   }
+  // }
+  // offset = 0;
+  // Object.keys(players).forEach(key => {
+  //   console.log(key);
+  //   players[key].show(offset);
+  //   offset += 100;
+  // });
+  // saveCanvas("out", "png");
+}
 
 function insertTextAtCursor(text) {
   var input = document.getElementById("input");
@@ -179,6 +216,13 @@ window.onload = function() {
 
   socket.on('server update', function() {
     socket.emit('init');
+  });
+
+  socket.on('load_map', function(data) {
+    map = data;
+    for (let i = 0; i < map.length; i++) {
+      showTile(map[i], topcorner);
+    }
   });
 
   socket.on('init', function(data) {

@@ -15,5 +15,14 @@ th, td {
     text-align: left;
     padding: 8px;
 }
-
 tr:nth-child(even){background-color: #f2f2f2}
+
+#map table {
+    border: 1px solid black;
+    table-layout: fixed;
+}
+
+#map th, #map td {
+    border: 1px solid black;
+    width: 80px;
+}

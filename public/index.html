@@ -2,21 +2,28 @@
 <html>
   <head>
     <meta charset="UTF-8">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.5.11/p5.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.5.11/addons/p5.dom.min.js"></script>
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
     <link rel="stylesheet" type="text/css" href="style.css">
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.2/socket.io.js"></script>
     <script type="text/javascript" src="socket.io.js"></script>
+    <script type="text/javascript" src="drawing.js"></script>
     <script type="text/javascript" src="script.js"></script>
   </head>
-  <body>
-    <div id="chatarea">
-      <div id="chat"></div>
-      <input type="text" id="input"><button id="button">OK</button>
-      <div id="preview"></div><br>
-      <div id="options"></div>
-      <div><span class="action" id="action">action</span>
-      <span class="coord" id="coord">A1</span>
-      <span class="player" id="player">Joueur</span>
-      <span class="money" id="money"><img height="25px" width="25px" src="images/coins.png"></span></div>
+  <body class="w3-light-grey">
+    <div class="w3-container w3-cell-row">
+      <div id="chatarea" class="w3-container w3-cell w3-cell-bottom">
+        <div id="chat" style="display:block;overflow-y:scroll;height:500px;"></div>
+        <input type="text" id="input"><button id="button">OK</button>
+        <div id="preview"></div><br>
+        <div id="options"></div>
+        <div><span class="action" id="action">action</span>
+        <span class="coord" id="coord">A1</span>
+        <span class="player" id="player">Joueur</span>
+        <span class="money" id="money"><img height="25px" width="25px" src="images/coins.png"></span></div>
+      </div>
+      <div id="map" class="w3-container w3-cell"></div>
     </div>
   </body>
 </html>

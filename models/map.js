@@ -9,6 +9,7 @@ var MapSchema = Schema(
     // y coordinate
     y: {type: Number, required: true},
     // array of items in this map chunk
+    type: {type: String},
     items: [{
       // link to id of the Items Schema
       item: {type: Schema.ObjectId, ref: 'Items'},
