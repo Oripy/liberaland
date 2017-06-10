@@ -9,13 +9,13 @@ const path = require('path');
 const session = require('express-session');
 var FileStore = require('session-file-store')(session);
 
-var conf = require('./config');
+app.set('port', (process.env.PORT || 5000));
 //const fs = require('fs');
 
 // set up Mongoose connection
 const mongoose = require('mongoose');
 mongoose.Promise = global.Promise;
-mongoose.connect('mongodb://'+conf.mongo.user+":"+conf.mongo.pass+"@"+conf.mongo.host+":"+conf.mongo.port+"/"+conf.mongo.db);
+mongoose.connect('mongodb://'+process.env.MG_USER+":"+process.env.MG_PASS+"@"+process.env.MG_HOST+":"+process.env.MG_PORT+"/"+process.env.MG_DB);
 //mongoose.connect('mongodb://127.0.0.1/ncfmldata');
 var db = mongoose.connection;
 db.on('error', console.error.bind(console, 'MongoDB connection error: '));
@@ -210,6 +210,6 @@ io.sockets.on('connection', function(socket) {
   });
 });
 
-server.listen(3000, function () {
-  console.log('Example app listening on port 3000!');
+app.listen(app.get('port'), function() {
+  console.log('Node app is running on port', app.get('port'));
 })
