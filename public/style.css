@@ -110,6 +110,6 @@
   overflow-y: scroll;
   height: 100%;
 }
-html, body {
+html, body, #full {
   height: 100%;
 }
