@@ -1,0 +1,43 @@
+<% var title = 'NCFML New User' %>
+<% include head %>
+
+<h1>Create New User</h1>
+<%- message %>
+<form method="post" action="/newuser">
+  <p>
+    <label>Username:</label>
+    <input type="text" name="username">
+  </p>
+  <p>
+    <label>Password:</label>
+    <input type="password" name="password" id="password">
+  </p>
+  <p>
+    <label>Type again:</label>
+    <input type="password" name="password_check" id="password_check">
+  </p>
+  <p>
+    <input type="submit" value="New" id="submit">
+  </p>
+</form>
+<script>
+  password = document.getElementById("password");
+  password_check = document.getElementById("password_check");
+  submit = document.getElementById("submit");
+
+  function check() {
+    if (password_check.value != "") {
+      if (password_check.value !== password.value) {
+        password.style.backgroundColor = "#FF2323";
+        password_check.style.backgroundColor = "#FF2323";
+        
+      } else if (password.value != "") {
+        password.style.backgroundColor = "#ABF021";
+        password_check.style.backgroundColor = "#ABF021";
+      }
+    }
+  }
+  password.onchange = check;
+  password_check.onchange = check;
+</script>
+<% include foot %>

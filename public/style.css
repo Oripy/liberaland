@@ -1,0 +1,95 @@
+#input {
+  width: 300px;
+}
+.items {
+  height: 25px;
+  width: 25px;
+  vertical-align: middle;
+}
+.msgtype {
+  height: 20px;
+  width: 20px;
+}
+.coord {
+  border-radius: 10px;
+  height: 20px;
+  font-family: Monospace;
+  background: coral;
+  border: 1px solid coral;
+}
+.action {
+  border-radius: 10px;
+  height: 20px;
+  font-family: Monospace;
+  background: lightBlue;
+  border: 1px solid lightBlue;
+}
+.player {
+  border-radius: 10px;
+  height: 20px;
+  font-family: Monospace;
+  background: LawnGreen;
+  border: 1px solid LawnGreen;
+}
+.money {
+  border-radius: 10px;
+  height: 20px;
+  font-family: Monospace;
+  background: Gold;
+  border: 1px solid Gold;
+}
+.author {
+  font-weight: bold;
+  color: lightBlue;
+}
+.message {
+  margin-left: 10px;
+  min-height: 30px;
+}
+.message:hover {
+  background-color: Skyblue;
+}
+.message.selected {
+  background-color: DodgerBlue;
+}
+.highlight {
+  border-bottom: 1px dotted Skyblue;
+}
+.new-1 {
+  background-color: hsl(16, 100%, 70%);
+}
+.new-2 {
+  background-color: hsl(16, 100%, 73%);
+}
+.new-3 {
+  background-color: hsl(16, 100%, 76%);
+}
+.new-4 {
+  background-color: hsl(16, 100%, 79%);
+}
+.new-5 {
+  background-color: hsl(16, 100%, 82%);
+}
+.new-6 {
+  background-color: hsl(16, 100%, 85%);
+}
+.new-7 {
+  background-color: hsl(16, 100%, 88%);
+}
+.new-8 {
+  background-color: hsl(16, 100%, 91%);
+}
+.new-9 {
+  background-color: hsl(16, 100%, 94%);
+}
+.new-10 {
+  background-color: hsl(16, 100%, 97%);
+}
+#chat {
+  display: block;
+  overflow-y: scroll;
+  height: 100%;
+}
+#preview {
+  min-height: 30px;
+}
