@@ -7,6 +7,8 @@ var user = null;
 var msgselected = "chat";
 var newmsgs = [null,null,null,null,null,null,null,null,null,null];
 
+var socket;
+
 var items = {};
 var users = [];
 var actions = ["tuer", "donne"];
@@ -127,9 +129,9 @@ function pretty(message, id, timestamp, author) {
       return '<img class="items" src="images/none.png">';
     }
   });
-  
+
   var cited = false;
-  var regex = new RegExp(user, "i"); 
+  var regex = new RegExp(user, "i");
   if (message.search(regex) != -1) {
     cited = true;
   }
@@ -158,28 +160,41 @@ function click_item(elt) {
 }
 
 window.onload = function() {
-  var socket = io.connect();
-  
+  socket = io.connect();
+  socket.on('connect_error', function() {
+    console.log('Connection failed');
+  });
+  socket.on('reconnect_failed', function() {
+    console.log('Reconnection failed');
+  });
+
   var input = document.getElementById("input");
-  
+
   document.onclick = function(event) {
     if (!document.getElementById("chatarea").contains(event.target)) {
       document.getElementById(msgselected).classList.remove("selected");
       msgselected = "chat";
     }
   }
-  
-  socket.emit('init', {});
-  
+
+  socket.on('server update', function() {
+    socket.emit('init');
+  });
+
   socket.on('init', function(data) {
     user = data.username;
+
+    // reset current state
+    document.getElementById("chat").innerHTML = "";
+    newmsgs = [null,null,null,null,null,null,null,null,null,null];
+
     for (let i = 0; i < data.users.length; i++) {
       users.push(data.users[i].name.toLowerCase());
     }
     var options = "";
     for (let i = 0; i < data.items.length; i++) {
       items[data.items[i].name] = data.items[i];
-      options += '<img class="items" src="'+data.items[i].image+'" id="'+data.items[i].name+'" onclick="click_item(this)">';
+      options += '<img class="items" src="'+data.items[i].image+'" id="'+data.items[i].name+'" onclick="click_item(this)" title="'+data.items[i].name+'">';
     }
     document.getElementById("options").innerHTML = options;
   });
@@ -197,6 +212,8 @@ window.onload = function() {
       message: input.value,
       parent: msgselected
     });
+    input.value = "";
+    input.oninput();
   }
 
   socket.on('message', function(data) {
@@ -206,8 +223,6 @@ window.onload = function() {
     var value = pretty(data.message, data.id, data.timestamp, data.author);
     var old = document.getElementById(data.parent).innerHTML;
     document.getElementById(data.parent).innerHTML = old + value;
-    input.value = "";
-    input.oninput();
     document.getElementById(data.id).scrollIntoView(true);
     newmsgs.push(data.id);
     for (let i = 0; i < 10; i++) {

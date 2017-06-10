@@ -21,6 +21,7 @@ var db = mongoose.connection;
 db.on('error', console.error.bind(console, 'MongoDB connection error: '));
 
 var Items = require(path.join(__dirname, '/models/items'));
+var Map = require(path.join(__dirname, '/models/map'));
 var Users = require(path.join(__dirname, '/models/users'));
 var Messages = require(path.join(__dirname, '/models/messages'));
 
@@ -83,11 +84,27 @@ function restrict(req, res, next) {
   }
 }
 
+function restrict_admin(req, res, next) {
+  if (req.session.user) {
+    if (req.session.user.admin === true) {
+      next();
+    } else {
+      req.session.error = 'Not an Admin!';
+      res.redirect('/game');
+    }
+  } else {
+    req.session.error = 'Access denied!';
+    res.redirect('/game');
+  }
+}
+
 app.get('/', function(req, res){
   res.redirect('/game');
 });
 
+app.use('/images', restrict, express.static(path.join(__dirname, 'public/images')));
 app.use('/game', restrict, express.static(path.join(__dirname, 'public')));
+app.use('/admin', restrict_admin, express.static(path.join(__dirname, 'admin')));
 
 app.get('/logout', function(req, res){
   // destroy the user's session to log them out
@@ -162,17 +179,21 @@ io.sockets.on('connection', function(socket) {
         id: message._id
       }
       if (all_clients) {
-        socket.emit('message', data);
-      } else {
         io.emit('message', data);
+      } else {
+        socket.emit('message', data);
       }
     }
 
     socket.on('init', function(data) {
-      Items.find().exec( function(err, items_list) {
+      Items.find({approved: true}).exec( function(err, items_list) {
         if (err) throw err;
         Users.find().exec( function(err, users_list) {
           if (err) throw err;
+          for (let user in users_list) {
+            users_list[user].hash = "hidden";
+            users_list[user].salt = "hidden";
+          }
           socket.emit('init', {
             username: user.truename,
             users: users_list,
@@ -181,7 +202,7 @@ io.sockets.on('connection', function(socket) {
           Messages.find().populate('user').sort({'_id': 1}).exec( function(err, messages) {
             if (err) throw err;
             for (let i = 0; i < messages.length; i++) {
-              emitMessage(messages[i], true);
+              emitMessage(messages[i], false);
             }
           });
         });
@@ -199,14 +220,50 @@ io.sockets.on('connection', function(socket) {
         if (err) throw err;
         Messages.findOne().where("_id", message._id).populate('user').exec( function(err, message) {
           if (err) throw err;
-          emitMessage(message, false);
+          emitMessage(message, true);
         });
+      });
+    });
+
+    socket.on('load_admin', function(data) {
+      Users.find().exec( function(err, users_list) {
+        if (err) throw err;
+        for (let user in users_list) {
+          users_list[user].hash = "hidden";
+          users_list[user].salt = "hidden";
+        }
+        socket.emit('load_users', users_list);
+      });
+      Items.find().exec( function(err, items_list) {
+        if (err) throw err;
+        socket.emit('load_items', items_list);
+      });
+    });
+
+    socket.on('new item', function(data) {
+      var newitem = new Items({
+        name: data.name,
+        image: data.image,
+        approved: false
+      });
+      newitem.save(function(err, message) {
+        if (err) throw err;
+        io.emit('server update');
+      });
+    });
+
+    socket.on('approve_item', function(data) {
+      Items.update({ _id: data.id }, { $set: { approved: data.approved }}, function(err, message) {
+        if (err) throw err;
+        io.emit('server update');
       });
     });
 
     socket.on('disconnect', function(){
       console.log('user disconnected');
     });
+
+    socket.emit('server update');
   });
 });
 

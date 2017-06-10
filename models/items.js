@@ -7,7 +7,8 @@ var ItemsSchema = Schema(
     // name of the item
     name: {type: String, required: true},
     // url of the image for this item
-    image: {type: String}
+    image: {type: String},
+    approved: {type: Boolean, default: false}
   }
 );
 

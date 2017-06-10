@@ -18,7 +18,8 @@ var UsersSchema = Schema(
     items: [{
       item: {type: Schema.ObjectId, ref: 'Items'},
       number: {type: Number}
-    }]
+    }],
+    admin: {type: Boolean, default: false}
   }
 );
 
