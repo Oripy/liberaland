@@ -11,19 +11,21 @@
     <script type="text/javascript" src="drawing.js"></script>
     <script type="text/javascript" src="script.js"></script>
   </head>
-  <body class="w3-light-grey">
-    <div class="w3-container w3-cell-row">
-      <div id="chatarea" class="w3-container w3-cell w3-cell-bottom">
-        <div id="chat" style="display:block;overflow-y:scroll;height:500px;"></div>
+  <body>
+    <div class="w3-container w3-third w3-light-grey" id="chatarea">
+      <div id="chat"></div>
+      <div id="chatinput">
         <input type="text" id="input"><button id="button">OK</button>
-        <div id="preview"></div><br>
-        <div id="options"></div>
-        <div><span class="action" id="action">action</span>
+        <span id="preview"></span><br>
+        <span id="options"></span><br>
+        <span class="action" id="action">action</span>
         <span class="coord" id="coord">A1</span>
         <span class="player" id="player">Joueur</span>
         <span class="money" id="money"><img height="25px" width="25px" src="images/coins.png"></span></div>
       </div>
-      <div id="map" class="w3-container w3-cell"></div>
+    </div>
+    <div class="w3-container w3-twothird" id="main">
+      <div id="map" class="w3-container"></div>
     </div>
   </body>
 </html>
