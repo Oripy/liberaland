@@ -3,6 +3,10 @@
   width: 25px;
   vertical-align: middle;
 }
+img {
+  max-height: 100px;
+  max-width: 100px;
+}
 table {
     border-collapse: collapse;
     width: 100%;

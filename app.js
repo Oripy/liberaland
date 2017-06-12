@@ -207,7 +207,7 @@ io.sockets.on('connection', function(socket) {
           });
         });
       });
-      Maps.find().populate('item').exec( function(err, tiles) {
+      Maps.find().populate('items.item').exec( function(err, tiles) {
         if (err) throw err;
         socket.emit('load_map', tiles);
       });
@@ -242,8 +242,7 @@ io.sockets.on('connection', function(socket) {
         if (err) throw err;
         socket.emit('load_items', items_list);
       });
-      Maps.find().populate('item').exec( function(err, tiles) {
-        console.log(tiles);
+      Maps.find().populate('items.item').exec( function(err, tiles) {
         if (err) throw err;
         socket.emit('load_map', tiles);
       });
@@ -265,6 +264,38 @@ io.sockets.on('connection', function(socket) {
       Items.update({ _id: data.id }, { $set: { approved: data.approved }}, function(err, message) {
         if (err) throw err;
         io.emit('server update');
+      });
+    });
+
+    socket.on('change_chunk', function(data) {
+      Items.find().exec( function(err, items_list) {
+        if (err) throw err;
+        var newdoc = {
+          x: data.x,
+          y: data.y,
+          type: data.type,
+          items: []
+        };
+        var items = JSON.parse(data.items)
+        for (let i = 0; i < items.length; i++) {
+          var current_item_id = "";
+          for (let j = 0; j < items_list.length; j++) {
+            if (items_list[j].name == items[i].name) {
+              current_item_id = items_list[j]._id;
+              break;
+            }
+          }
+          if (current_item_id != "") {
+            newdoc.items.push({
+              item: current_item_id,
+              number: items[i].number
+            });
+          }
+        }
+        Maps.update({ x: data.x, y: data.y}, newdoc, { upsert: true }, function(err, message) {
+          if (err) throw err;
+          io.emit('server update');
+        });
       });
     });
 

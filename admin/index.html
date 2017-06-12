@@ -12,6 +12,13 @@
     <h2>Joueurs</h2><div id="users"></div>
     <h2>Objets</h2><div id="items"></div>
     <h2>Règles</h2><div id="rules"></div>
-    <h2>Carte</h2><div id="map"></div>
+    <h2>Carte</h2>
+    <button id="map_button" onclick="map_save()">Valider les changements</button><br>
+    Coordonnées: [<span id="map_coords"></span>]<br>
+    Type : <input type="text" id="map_type"><br>
+    Items :
+    <div id="map_items"></div>
+    <div id="inserted_items"></div><button onclick="insert_item()">Ajouter un item</button>
+    <div id="map"></div>
   </body>
 </html>

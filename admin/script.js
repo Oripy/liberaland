@@ -1,21 +1,50 @@
 var testurl = new RegExp('^(?:[a-z]+:)?//', 'i');
+
+var map = [];
+var chunk_selected;
+var num_lines = 0;
 var approve_item = function() { return undefined; };
 var add_item = function() { return undefined; };
+var map_select = function() { return undefined; };
+
+function strToNum(value) {
+  var out = 0;
+  value = value.toUpperCase();
+  for (var i = 0; i < value.length; i++) {
+    out += (value[i].charCodeAt() - 65)*Math.pow(26, value.length-i-1);
+  }
+  return out;
+}
+function numToStr(value) {
+  var out = "";
+  do {
+    var remainder = value % 26;
+    value = Math.floor(value/26);
+    out = String.fromCharCode(remainder + 65) + out;
+  } while (value > 0);
+  return out;
+}
+function url_check(value) {
+  if (testurl.test(value)) {
+    var url = value;
+  } else {
+    var url = "../"+value;
+  }
+  return url;
+}
 
 window.onload = function() {
   var socket = io.connect();
+  socket.on('server update', function() {
+    socket.emit('load_admin');
+  });
 
   approve_item = function(elt) {
-    console.log('fired');
     socket.emit('approve_item', {
       id: elt.id,
       approved: elt.checked
     });
   }
-
-  socket.on('server update', function() {
-    socket.emit('load_admin');
-  });
 
   add_item = function() {
     var name = document.getElementById('item_name').value;
@@ -26,6 +55,61 @@ window.onload = function() {
         image: image
       });
     }
+  }
+
+  map_save = function() {
+    var x = parseInt(chunk_selected.getAttribute("coordx"));
+    var y = parseInt(chunk_selected.getAttribute("coordy"));
+    var type = document.getElementById('map_type').value;
+    var items = [];
+    for (var i = 0; i < num_lines; i++) {
+      var item = document.getElementById('map_item_'+i).value;
+      var number = document.getElementById('map_number_'+i).value;
+      if ((item != "") && (number != "")) {
+        items.push({
+          name: item,
+          number: number
+        });
+      }
+    }
+    var newdoc = {
+      x: x,
+      y: y,
+      type: type,
+      items: JSON.stringify(items)
+    };
+    socket.emit('change_chunk', newdoc);
+  }
+
+  map_select = function(elt) {
+    if (elt != chunk_selected) {
+      var x = parseInt(elt.getAttribute("coordx"));
+      var y = parseInt(elt.getAttribute("coordy"));
+      if (chunk_selected) {
+        chunk_selected.removeAttribute("bgColor");
+      }
+      chunk_selected = elt;
+      chunk_selected.setAttribute("bgColor", "LightBlue");
+      document.getElementById('map_coords').innerHTML = numToStr(x)+", "+y;
+      if (map[x]) {
+        if (map[x][y]) {
+          document.getElementById('map_type').value = map[x][y].type;
+          var list_items = map[x][y].items;
+          var out = "";
+          num_lines = 0;
+          document.getElementById('inserted_items').innerHTML = "";
+          for (let i = 0; i < list_items.length; i++) {
+            insert_item(list_items[i].number, list_items[i].item.name);
+            num_lines++;
+          }
+        }
+      }
+    }
+  }
+
+  insert_item = function(number = "", name = "") {
+    document.getElementById('inserted_items').insertAdjacentHTML('beforeend', '<input id="map_number_'+num_lines+'" type="number" value="'+number+'"><input id="map_item_'+num_lines+'" list="items_list" type="text" value="'+name+'"><br>');
+    num_lines++;
   }
 
   socket.on('load_users', function(users) {
@@ -52,7 +136,7 @@ window.onload = function() {
       out += "</td><td>";
       if (users[i].items) {
         for (let item in users[i].items) {
-          out += item.number+'<img class="items" src="'+item.item.image+'" title="'+item.item.name+'"><br>';
+          out += item.number+'<img class="items" src="'+url_check(item.item.image)+'" title="'+item.item.name+'"><br>';
         }
       }
       out += "</td></tr>";
@@ -63,12 +147,10 @@ window.onload = function() {
 
   socket.on('load_items', function(items) {
     var out = "<table><thead><tr><th>approvés</th><th>nom</th><th>image</th><th>image petit</th><th>image url</th></tr></thead>";
+    var datalist = '<datalist id="items_list">';
     for (let i = 0; i < items.length; i++) {
-      if (testurl.test(items[i].image)) {
-        var url = items[i].image;
-      } else {
-        var url = "../"+items[i].image;
-      }
+      datalist += '<option value='+items[i].name+'>';
+      url = url_check(items[i].image);
       out += "<tr><td>";
       if (items[i].approved === true) {
         out += '<input type="checkbox" onclick="approve_item(this)" id="'+items[i]._id+'" checked>';
@@ -94,6 +176,7 @@ window.onload = function() {
       out += "</td></tr>";
     }
     out += '<tr><td>Ajout :</td><td><input type="text" id="item_name"></td><td><input type="text" id="item_image"></td><td><button onclick="add_item()">Ajouter</button></td></tr></table>';
+    out += datalist+'</datalist>';
     document.getElementById('items').innerHTML = out;
   });
 
@@ -117,12 +200,13 @@ window.onload = function() {
     for (let i = min_x; i < max_x+1; i++) {
       out += '<tr>';
       for (let j = min_y; j < max_y+1; j++) {
-        out += '<td>';
+        out += '<td coordx="'+i+'" coordy="'+j+'" onclick="map_select(this)"">';
         if (map[i]) {
           if (map[i][j]) {
-            out += map[i][j].type;
-            for (let k = 0; k < map[i][j].items.length; k++) {
-              out += map[i][j].items[k].number+'<img class="items" src="'+map[i][j].items[k].item.image+'"><br>';
+            out += map[i][j].type+"<br>";
+            var items = map[i][j].items;
+            for (let k = 0; k < items.length; k++) {
+              out += items[k].number+'<img class="items" src="'+url_check(items[k].item.image)+'"><br>';
             }
           }
         }

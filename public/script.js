@@ -7,7 +7,7 @@ var player = /@([\w]+)/g;
 var money = /([0-9]+)\$/g;
 
 var user = null;
-var msgselected = "chat";
+var msgselected = "chatview";
 var newmsgs = [null,null,null,null,null,null,null,null,null,null];
 
 var socket;
@@ -128,14 +128,27 @@ function parse(value) {
   return ["chat", value];
 }
 
+function strToNum(value) {
+  var out = 0;
+  value = value.toUpperCase();
+  for (var i = 0; i < value.length; i++) {
+    out += (value[i].charCodeAt() - 65)*Math.pow(26, value.length-i-1);
+  }
+  return out;
+}
+function numToStr(value) {
+  var out = "";
+  do {
+    var remainder = value % 26;
+    value = Math.floor(value/26);
+    out = String.fromCharCode(remainder + 65) + out;
+  } while (value > 0);
+  return out;
+}
 function pretty(message, id, timestamp, author) {
   var message = message;
   message = message.replace(coordinates, function(match, x, y, offset, string) {
-    x.toUpperCase();
-    var x_num = 0;
-    for (var i = 0; i < x.length; i++) {
-      x_num += (x[i].charCodeAt() - 64)*Math.pow(26, x.length-i-1);
-    }
+    x_num = strToNum(x);
     if ((x_num < x_range) && (parseInt(y) < y_range) && (parseInt(y) > 0)) {
       return '<span class="coord">'+x+y+'</span>';
     } else {
@@ -210,7 +223,7 @@ window.onload = function() {
   document.onclick = function(event) {
     if (!document.getElementById("chatarea").contains(event.target)) {
       document.getElementById(msgselected).classList.remove("selected");
-      msgselected = "chat";
+      msgselected = "chatview";
     }
   }
 
@@ -229,7 +242,7 @@ window.onload = function() {
     user = data.username;
 
     // reset current state
-    document.getElementById("chat").innerHTML = "";
+    document.getElementById("chatview").innerHTML = "";
     newmsgs = [null,null,null,null,null,null,null,null,null,null];
 
     for (let i = 0; i < data.users.length; i++) {
@@ -262,7 +275,7 @@ window.onload = function() {
 
   socket.on('message', function(data) {
     if (data.parent == null) {
-      data.parent = "chat";
+      data.parent = "chatview";
     }
     var value = pretty(data.message, data.id, data.timestamp, data.author);
     var old = document.getElementById(data.parent).innerHTML;
