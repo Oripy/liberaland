@@ -13,6 +13,7 @@ var newmsgs = [null,null,null,null,null,null,null,null,null,null];
 var socket;
 
 var items = {};
+var images = {};
 var users = [];
 var actions = ["tuer", "donne"];
 
@@ -34,7 +35,9 @@ function setup() {
 
 function draw() {
   background(255);
-
+  for (let i = 0; i < map.length; i++) {
+    showTile(map[i], topcorner);
+  }
   // for (var i = view[0]; i < view[0]+7; i++) {
   //   text(String.fromCharCode(65 + i), 45+(i-view[0])*tile_width+19, 2);
   //   for (var j = view[1]; j < view[1]+7; j++) {
@@ -249,9 +252,11 @@ window.onload = function() {
       users.push(data.users[i].name.toLowerCase());
     }
     var options = "";
+    //images = {};
     for (let i = 0; i < data.items.length; i++) {
       items[data.items[i].name] = data.items[i];
       options += '<img class="items" src="'+data.items[i].image+'" id="'+data.items[i].name+'" onclick="click_item(this)" title="'+data.items[i].name+'">';
+      images[data.items[i].name] = loadImage(data.items[i].image);
     }
     document.getElementById("options").innerHTML = options;
   });

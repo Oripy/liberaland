@@ -8,10 +8,10 @@ function showTile(mapchunk, topcorner) {
     let counter = 0;
     for (let i = 0; i < mapchunk.items.length; i++) {
       if (mapchunk.items[i].number > 0) {
-        image(mapchunk.items[i].item.image, local.x + counter * 20, local.y + 10, 20, 20);
+        image(images[mapchunk.items[i].item.name], local.x*tile_width + counter * 20, local.y*tile_width + 10, 20, 20);
         noStroke();
         fill(0);
-        text(mapchunk.items[i].number, local.x + counter * 20, local.y);
+        text(mapchunk.items[i].number, local.x*tile_width + counter * 20, local.y*tile_width);
         counter++;
       }
     }

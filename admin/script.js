@@ -58,8 +58,8 @@ window.onload = function() {
   }
 
   map_save = function() {
-    var x = parseInt(chunk_selected.getAttribute("coordx"));
-    var y = parseInt(chunk_selected.getAttribute("coordy"));
+    var x = parseInt(strToNum(document.getElementById('map_coord_x').value));
+    var y = parseInt(document.getElementById('map_coord_y').value);
     var type = document.getElementById('map_type').value;
     var items = [];
     for (var i = 0; i < num_lines; i++) {
@@ -82,25 +82,26 @@ window.onload = function() {
   }
 
   map_select = function(elt) {
-    if (elt != chunk_selected) {
-      var x = parseInt(elt.getAttribute("coordx"));
-      var y = parseInt(elt.getAttribute("coordy"));
-      if (chunk_selected) {
-        chunk_selected.removeAttribute("bgColor");
-      }
-      chunk_selected = elt;
-      chunk_selected.setAttribute("bgColor", "LightBlue");
-      document.getElementById('map_coords').innerHTML = numToStr(x)+", "+y;
-      if (map[x]) {
-        if (map[x][y]) {
-          document.getElementById('map_type').value = map[x][y].type;
-          var list_items = map[x][y].items;
-          var out = "";
-          num_lines = 0;
-          document.getElementById('inserted_items').innerHTML = "";
-          for (let i = 0; i < list_items.length; i++) {
-            insert_item(list_items[i].number, list_items[i].item.name);
-            num_lines++;
+    if (elt) {
+      if (elt != chunk_selected) {
+        var x = parseInt(elt.getAttribute("coordx"));
+        var y = parseInt(elt.getAttribute("coordy"));
+        if (chunk_selected) {
+          chunk_selected.removeAttribute("bgColor");
+        }
+        chunk_selected = elt;
+        chunk_selected.setAttribute("bgColor", "LightBlue");
+        document.getElementById('map_coords').innerHTML = '<input size=1 id="map_coord_x" value="'+numToStr(x)+'">, <input size=1 id="map_coord_y" value="'+y+'">';
+        if (map[x]) {
+          if (map[x][y]) {
+            document.getElementById('map_type').value = map[x][y].type;
+            var list_items = map[x][y].items;
+            var out = "";
+            num_lines = 0;
+            document.getElementById('inserted_items').innerHTML = "";
+            for (let i = 0; i < list_items.length; i++) {
+              insert_item(list_items[i].number, list_items[i].item.name);
+            }
           }
         }
       }
@@ -197,8 +198,13 @@ window.onload = function() {
       }
       map[tiles[i].x][tiles[i].y] = tiles[i];
     }
+    out += '<tr><td style="width:15px;border-style:none;"></td>';
+    for (let j = min_y; j < max_y+1; j++) {
+      out += '<th align="center">'+j+'</th>';
+    }
+    out += '<td style="width:15px;border-style:none;"></td></tr>';
     for (let i = min_x; i < max_x+1; i++) {
-      out += '<tr>';
+      out += '<tr><th align="center">'+numToStr(i)+'</th>';
       for (let j = min_y; j < max_y+1; j++) {
         out += '<td coordx="'+i+'" coordy="'+j+'" onclick="map_select(this)"">';
         if (map[i]) {
@@ -206,15 +212,21 @@ window.onload = function() {
             out += map[i][j].type+"<br>";
             var items = map[i][j].items;
             for (let k = 0; k < items.length; k++) {
-              out += items[k].number+'<img class="items" src="'+url_check(items[k].item.image)+'"><br>';
+              out += items[k].number+'<img class="items" src="'+url_check(items[k].item.image)+'">; ';
             }
           }
         }
         out += '</td>';
       }
-      out += '</tr>';
+      out += '<th align="center">'+numToStr(i)+'</th></tr>';
     }
+    out += '<tr><td style="width:15px;border-style:none;"></td>';
+    for (let j = min_y-1; j < max_y+2; j++) {
+      out += '<th align="center">'+j+'</th>';
+    }
+    out += '<td style="width:15px;border-style:none;"></td></tr>';
     out += '</table>';
     document.getElementById('map').innerHTML = out;
+    map_select(chunk_selected);
   });
 }
