@@ -82,6 +82,7 @@
 .new-10 {
   background-color: hsl(16, 100%, 97%);
 }
+/*
 #chatview {
   display: block;
   overflow-y: scroll;
@@ -113,3 +114,4 @@
 html, body, #full {
   height: 100%;
 }
+*/

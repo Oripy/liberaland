@@ -102,8 +102,9 @@ app.get('/', function(req, res){
   res.redirect('/game');
 });
 
-app.use('/images', restrict, express.static(path.join(__dirname, 'public/images')));
-app.use('/game', restrict, express.static(path.join(__dirname, 'public')));
+app.use('/', express.static(path.join(__dirname, 'public')));
+//app.use('/images', restrict, express.static(path.join(__dirname, 'private/images')));
+app.use('/game', restrict, express.static(path.join(__dirname, 'private')));
 app.use('/admin', restrict_admin, express.static(path.join(__dirname, 'admin')));
 
 app.get('/logout', function(req, res){
@@ -115,7 +116,7 @@ app.get('/logout', function(req, res){
 });
 
 app.get('/login', function(req, res){
-  res.render('login');
+  res.redirect('/login.html');
 });
 
 app.post('/login', function(req, res){
@@ -142,7 +143,7 @@ app.post('/login', function(req, res){
 });
 
 app.get('/newuser', function(req, res){
-  res.render('newuser');
+  res.redirect('/newuser.html');
 });
 
 app.post('/newuser', function(req, res){
