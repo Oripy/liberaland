@@ -225,6 +225,7 @@ window.onload = function() {
 
   socket.on('init', function(data) {
     user = data.username;
+    $("#username").text(user);
 
     // reset current state
     document.getElementById("chatview").innerHTML = "";

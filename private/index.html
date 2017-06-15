@@ -7,6 +7,8 @@
     <meta name="description" content="RPG d'improvisation">
     <meta name="author" content="Pierre Maurier">
     <link rel="icon" href="../../favicon.ico">
+
+    <title>Liberaland</title>
     <!-- Latest compiled and minified CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
     <!-- Optional theme -->
@@ -17,55 +19,91 @@
     <!-- Fixed navbar -->
     <nav class="navbar navbar-default navbar-fixed-top">
       <div class="container">
-        <div class="navbar-header">
+        <div class="navbar-header pull-left">
+          <a class="navbar-brand" href="/game">Liberaland</a>
+          <button type="button" class="btn navbar-btn collapsed" data-toggle="offcanvas">
+            <span class="sr-only">Toggle chat</span>
+            <span class="glyphicon glyphicon-comment"></span>
+          </button>
+        </div>
+        <div class="navbar-header pull-right">
+          <ul class="nav pull-left">
+            <li class="navbar-text pull-left" id="username"></li>
+            <li class="dropdown pull-right">
+              <a href="#" data-toggle="dropdown" style="color:#777; margin-top: 5px;" class="dropdown-toggle"><span class="glyphicon glyphicon-user"></span><b class="caret"></b></a>
+              <ul class="dropdown-menu">
+                <li><a href="/login">Login</a></li>
+                <li><a href="/logout">Logout</a></li>
+                <li role="separator" class="divider"></li>
+                <li class="dropdown-header">Admin only</li>
+                <li><a href="/admin">Admin</a></li>
+              </ul>
+            </li>
+          </ul>
           <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
             <span class="sr-only">Toggle navigation</span>
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </button>
-          <a class="navbar-brand" href="/game">Liberaland</a>
         </div>
-        <div id="navbar" class="navbar-collapse collapse navbar-right">
-          <ul class="nav navbar-nav">
-            <li class="active"><a href="#">Carte</a></li>
-            <li><a href="#players">Joueurs</a></li>
-            <li class="dropdown">
-              <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Menu <span class="caret"></span></a>
-              <ul class="dropdown-menu">
-                <li><a href="/login">Connection</a></li>
-                <li><a href="/logout">Déconnection</a></li>
-                <li role="separator" class="divider"></li>
-                <li><a href="/admin">Admin</a></li>
-              </ul>
-            </li>
+        <div id="navbar" class="navbar-collapse collapse navbar-left">
+          <ul class="nav navbar-nav pull-right">
+            <li class="active"><a data-toggle="tab" href="#map">Carte</a></li>
+            <li><a data-toggle="tab" href="#players">Joueurs</a></li>
+            <li><a data-toggle="tab" href="#scores">Scores</a></li>
           </ul>
         </div><!--/.nav-collapse -->
       </div>
     </nav>
-    <div class="container-fluid">
-      <div class="row" id="full">
-        <div class="col-md-3" id="chatarea">
-          <div class="row" id="chatview"></div>
-          <div class="row">
-            <input type="text" id="input"><button id="button">OK</button>
-            <div id="preview"></div>
-            <span id="options"></span><br>
-            <span class="action" id="action">action</span>
-            <span class="coord" id="coord">A1</span>
-            <span class="player" id="player">Joueur</span>
-            <span class="money" id="money"><img height="25px" width="25px" src="images/coins.png"></span>
+    <div id="wrapper" class="toggled">
+      <nav class="navbar navbar-fixed-top" id="sidebar-wrapper">
+        <div id="chatview"></div>
+      </nav>
+      <div id="page-content-wrapper">
+        <div class="container-fluid tab-content">
+          <div class="tab-pane fade in active" id="map">
+            <h1>Carte</h1>
           </div>
-        </div>
-        <div class="col-md-9" id="main">
-          <div id="map"></div>
+          <div class="tab-pane fade" id="players">
+            <h1>Joueurs</h1>
+          </div>
+          <div class="tab-pane fade" id="scores">
+            <h1>Scores</h1>
+          </div>
         </div>
       </div>
     </div>
+    <footer class="navbar-fixed-bottom">
+      <div class="row">
+        <div class="col-sm-3">
+          <div class="input-group">
+            <input type="text" class="form-control" placeholder="Message" id="input">
+            <span class="input-group-btn">
+              <button class="btn btn-default" type="button" id="button">OK</button>
+            </span>
+          </div>
+          <div id="preview"></div>
+          <span id="options"></span><br>
+          <span class="action" id="action">action</span>
+          <span class="coord" id="coord">A1</span>
+          <span class="player" id="player">Joueur</span>
+          <span class="money" id="money"><img height="25px" width="25px" src="images/coins.png"></span>
+        </div>
+        <div class="col-sm-9">
+          <div class="alert alert-success" role="alert">Successful login!</div>
+        </div>
+      </div>
+    </footer>
     <!-- Bootstrap core JavaScript
     ================================================== -->
     <!-- Placed at the end of the document so the pages load faster -->
     <script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+    <script>
+      $('[data-toggle="offcanvas"]').click(function () {
+        $('#wrapper').toggleClass('toggled');
+      });
+    </script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.2/socket.io.js"></script>
     <!-- <script type="text/javascript" src="socket.io.js"></script> -->

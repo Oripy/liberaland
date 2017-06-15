@@ -82,36 +82,33 @@
 .new-10 {
   background-color: hsl(16, 100%, 97%);
 }
-/*
-#chatview {
-  display: block;
+body {
+  overflow-x: hidden;
+}
+#wrapper {
+  padding-left: 0;
+  transition: all 0.5s ease;
+}
+#sidebar-wrapper {
+  margin-top: 51px;
+  background: #dddddd;
+  height: calc(100vh - 150px);
+  overflow-x: hidden;
   overflow-y: scroll;
-  height: calc(100% - 100px);
-  padding: 0;
-  margin: 0;
+  transition: all 0.5s ease;
+  width: 0;
+  z-index: 1000;
 }
-#input {
-  width: 80%;
-  height: 25px;
+#wrapper.toggled {
+  padding-left: 350px;
 }
-#button {
-  width: 20%;
-  height: 25px;
+#wrapper.toggled > #sidebar-wrapper {
+  width: 350px;
 }
-#preview {
-  min-height: 30px;
+#wrapper.toggled > #page-content-wrapper {
+  margin-right: -350px;
 }
-#chatarea {
-  overflow:hidden;
-  height: 100%;
-  padding: 0;
-  margin: 0;
+#page-content-wrapper {
+  padding-top: 70px;
+  width: 100%;
 }
-#main {
-  overflow-y: scroll;
-  height: 100%;
-}
-html, body, #full {
-  height: 100%;
-}
-*/
