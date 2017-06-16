@@ -206,7 +206,8 @@ window.onload = function() {
   var input = document.getElementById("input");
 
   document.onclick = function(event) {
-    if (!document.getElementById("chatarea").contains(event.target)) {
+    if ((!document.getElementById("sidebar-wrapper").contains(event.target)) &&
+        (!document.getElementById("footer").contains(event.target))) {
       document.getElementById(msgselected).classList.remove("selected");
       msgselected = "chatview";
     }
