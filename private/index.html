@@ -69,7 +69,7 @@
     </div>
     <footer class="navbar-fixed-bottom" id="footer">
       <div class="row">
-        <div class="col-sm-3">
+        <div class="col-sm-5 col-md-4 col-lg-3" id="chatinput">
           <div class="input-group">
             <input type="text" class="form-control" placeholder="Message" id="input">
             <span class="input-group-btn">
@@ -83,9 +83,7 @@
           <span class="player" id="player">Joueur</span>
           <span class="money" id="money"><img height="25px" width="25px" src="images/coins.png"></span>
         </div>
-        <div class="col-sm-9">
-          <div class="alert alert-success" role="alert">Successful login!</div>
-        </div>
+        <div class="col-sm-7 col-md-8 col-lg-9 hidden-sm hidden-xs" id="info"></div>
       </div>
     </footer>
     <!-- Bootstrap core JavaScript
@@ -95,6 +93,7 @@
     <script>
       $('[data-toggle="offcanvas"]').click(function () {
         $('#wrapper').toggleClass('toggled');
+        $('#chatinput').toggle();
       });
     </script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>

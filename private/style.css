@@ -90,9 +90,9 @@ body {
   transition: all 0.5s ease;
 }
 #sidebar-wrapper {
-  margin-top: 51px;
+  margin-top: 60px;
   background: #dddddd;
-  height: calc(100vh - 150px);
+  height: calc(100vh - 170px);
   overflow-x: hidden;
   overflow-y: scroll;
   transition: all 0.5s ease;
@@ -111,4 +111,7 @@ body {
 #page-content-wrapper {
   padding-top: 70px;
   width: 100%;
+}
+#preview {
+  min-height: 25px;
 }

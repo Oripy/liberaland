@@ -39,7 +39,7 @@ var y_range = 26;
 // }
 
 function insertTextAtCursor(text) {
-  var input = document.getElementById("input");
+  var input = $("#input")[0];
   var input_text = input.value;
   var start_pos = input.selectionStart;
   var end_pos = input.selectionEnd;
@@ -54,7 +54,7 @@ function insertTextAtCursor(text) {
 }
 
 function decorate(val_start, val_end) {
-  var input = document.getElementById("input");
+  var input = $("#input")[0];
   var input_text = input.value;
   var start_pos = input.selectionStart;
   var end_pos = input.selectionEnd;
@@ -184,13 +184,13 @@ function pretty(message, id, timestamp, author) {
 }
 
 function select_message(elt) {
-  document.getElementById(msgselected).classList.remove("selected");
+  $("#"+msgselected)[0].classList.remove("selected");
   msgselected = elt.id;
   elt.classList.add("selected");
 }
 
 function click_item(elt) {
-  document.getElementById("input").focus();
+  $("#input")[0].focus();
   insertTextAtCursor('{' + elt.id + '}');
 }
 
@@ -203,7 +203,7 @@ window.onload = function() {
     console.log('Reconnection failed');
   });
 
-  var input = document.getElementById("input");
+  var input = $("#input")[0];
 
   document.onclick = function(event) {
     if ((!document.getElementById("sidebar-wrapper").contains(event.target)) &&
@@ -241,6 +241,7 @@ window.onload = function() {
       options += '<img class="items" src="'+data.items[i].image+'" id="'+data.items[i].name+'" onclick="click_item(this)" title="'+data.items[i].name+'">';
     }
     document.getElementById("options").innerHTML = options;
+    showInfo("Connecté !", "success");
   });
 
   document.getElementById("coord").onclick = function() { decorate("[", "]"); }
@@ -248,7 +249,7 @@ window.onload = function() {
   document.getElementById("player").onclick = function() { decorate("@", ""); }
   document.getElementById("money").onclick = function() { decorate("", "$"); }
 
-  input.oninput = function() { document.getElementById("preview").innerHTML = pretty(input.value); }
+  input.oninput = function() { $("#preview")[0].innerHTML = pretty(input.value); };
 
   // send the message
   var send_line = function() {
@@ -280,7 +281,20 @@ window.onload = function() {
     newmsgs.shift();
   });
 
-  document.getElementById("button").onclick = send_line;
+  function showInfo(info, type="info") {
+    // $("#info").show();
+    $("#info").html(`<div class="alert alert-${type}" role="alert">${info}</div>`);
+    console.log(info);
+    $("#info").delay(5000).hide(400, function() {
+      clearInfo();
+      $("#info").show();
+    });
+  }
+  function clearInfo() {
+    $("#info").empty();
+  }
+
+  $("#button").on("click", send_line);
   input.onkeypress = function(event) {
     if (event.keyCode == 13) {
       send_line();
