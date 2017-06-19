@@ -19,7 +19,10 @@ var UsersSchema = Schema(
       item: {type: Schema.ObjectId, ref: 'Items'},
       number: {type: Number}
     }],
-    admin: {type: Boolean, default: false}
+    // flag if user has access to admin pages
+    admin: {type: Boolean, default: false},
+    // number of VP of this user
+    victory_points: {type: Number}
   }
 );
 

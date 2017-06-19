@@ -231,10 +231,6 @@ window.onload = function() {
     // reset current state
     document.getElementById("chatview").innerHTML = "";
     newmsgs = [null,null,null,null,null,null,null,null,null,null];
-
-    for (let i = 0; i < data.users.length; i++) {
-      users.push(data.users[i].name.toLowerCase());
-    }
     var options = "";
     for (let i = 0; i < data.items.length; i++) {
       items[data.items[i].name] = data.items[i];
@@ -242,6 +238,43 @@ window.onload = function() {
     }
     document.getElementById("options").innerHTML = options;
     showInfo("Connecté !", "success");
+  });
+
+  socket.on('load_users', function(data) {
+    for (let i = 0; i < data.length; i++) {
+      users.push(data[i].name.toLowerCase());
+    }
+    var out = `<table class="table table-striped table-bordered table-hover table-condensed">
+                <thead>
+                  <tr>
+                    <th>Nom</th>
+                    <th>PV</th>
+                    <th>Objets</th>
+                  </tr>
+                </thead>`;
+    for (let i = 0; i < data.length; i++) {
+      if (data[i].truename == user) {
+        out += `<tr class="info"><td>`;
+      } else {
+        out += "<tr><td>";
+      }
+      if (data[i].truename) {
+        out += data[i].truename;
+      }
+      out += "</td><td>";
+      if (data[i].victory_points) {
+        out += data[i].victory_points;
+      }
+      out += "</td><td>";
+      if (data[i].items) {
+        for (let item in data[i].items) {
+          out += item.number+'<img class="items" src="'+url_check(item.item.image)+'" title="'+item.item.name+'"><br>';
+        }
+      }
+      out += "</td></tr>";
+    }
+    out += "</table>";
+    $('#users').html(out);
   });
 
   document.getElementById("coord").onclick = function() { decorate("[", "]"); }

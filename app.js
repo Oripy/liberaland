@@ -197,9 +197,10 @@ io.sockets.on('connection', function(socket) {
           }
           socket.emit('init', {
             username: user.truename,
-            users: users_list,
             items: items_list
           });
+          socket.emit('load_users', users_list);
+
           Messages.find().populate('user').sort({'_id': 1}).exec( function(err, messages) {
             if (err) throw err;
             for (let i = 0; i < messages.length; i++) {
