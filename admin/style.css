@@ -7,26 +7,23 @@ img {
   max-height: 100px;
   max-width: 100px;
 }
-table {
-  border-collapse: collapse;
-  width: 100%;
-}
-th {
-  text-align: center;
-  background-color: #4CAF50;
-  color: white;
-  padding: 8px;
-}
-td {
-  text-align: left;
-  padding: 8px;
-}
-tr:nth-child(even){background-color: #f2f2f2}
 
 #map table {
   table-layout: fixed;
+  border-collapse: collapse;
+  width: 100%;
 }
-#map th, #map td {
+#map th {
   border: 1px solid black;
   width: 100%;
+  text-align: center;
+  padding: 0px;
+  margin: 10px;
+}
+
+#map td {
+  border: 1px solid black;
+  width: 100%;
+  text-align: left;
+  padding: 8px;
 }

@@ -114,7 +114,16 @@ window.onload = function() {
   }
 
   socket.on('load_users', function(users) {
-    var out = "<table><thead><tr><th>admin</th><th>nom</th><th>vrai nom</th><th>propriétés</th><th>objets</th></tr></thead>";
+    var out = `<table class="table table-striped table-bordered table-hover table-condensed">
+                <thead>
+                  <tr>
+                    <th>admin</th>
+                    <th>nom</th>
+                    <th>vrai nom</th>
+                    <th>propriétés</th>
+                    <th>objets</th>
+                  </tr>
+                </thead>`;
     for (let i = 0; i < users.length; i++) {
       out += "<tr><td>";
       if (users[i].admin === true) {
@@ -147,7 +156,16 @@ window.onload = function() {
   });
 
   socket.on('load_items', function(items) {
-    var out = "<table><thead><tr><th>approvés</th><th>nom</th><th>image</th><th>image petit</th><th>image url</th></tr></thead>";
+    var out = `<table class="table table-striped table-bordered table-hover table-condensed">
+                <thead>
+                  <tr>
+                    <th>approvés</th>
+                    <th>nom</th>
+                    <th>image</th>
+                    <th>image petit</th>
+                    <th>image url</th>
+                  </tr>
+                </thead>`;
     var datalist = '<datalist id="items_list">';
     for (let i = 0; i < items.length; i++) {
       datalist += '<option value='+items[i].name+'>';
@@ -221,7 +239,7 @@ window.onload = function() {
       out += '<th align="center">'+numToStr(i)+'</th></tr>';
     }
     out += '<tr><td style="width:15px;border-style:none;"></td>';
-    for (let j = min_y-1; j < max_y+2; j++) {
+    for (let j = min_y; j < max_y+1; j++) {
       out += '<th align="center">'+j+'</th>';
     }
     out += '<td style="width:15px;border-style:none;"></td></tr>';
