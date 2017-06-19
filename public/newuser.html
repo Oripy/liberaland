@@ -29,11 +29,11 @@
       <form class="form-signin" method="post" action="/newuser" onsubmit="return checkerr(this)">
         <h2 class="form-signin-heading">Liberaland</h2>
         <label for="username" class="sr-only">Pseudo</label>
-        <input type="login" name="username" class="form-control" placeholder="Pseudo" required autofocus>
+        <input type="login" name="username"  autocomplete="off" class="form-control" placeholder="Pseudo" required autofocus>
         <label for="inputPassword" class="sr-only">Mot de passe</label>
-        <input type="password" name="password" class="form-control" placeholder="Mot de passe" required>
+        <input type="password" name="password"  autocomplete="off" class="form-control" placeholder="Mot de passe" required>
         <label for="inputPassword" class="sr-only">Vérification</label>
-        <input type="password" name="password_check" class="form-control" placeholder="Mot de passe - Vérification" required>
+        <input type="password" name="password_check"  autocomplete="off" class="form-control" placeholder="Mot de passe - Vérification" required>
         <button class="btn btn-lg btn-primary btn-block" id="submit" type="submit" value="Login">Créer un compte</button>
       </form>
     </div> <!-- /container -->
