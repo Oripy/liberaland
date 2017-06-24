@@ -26,20 +26,6 @@ var players_board_x = tile_width*7+50;
 var x_range = 26;
 var y_range = 26;
 
-// function setup() {
-//   canvas = createCanvas(view.x*tile_width, view.y*tile_width);
-//   canvas.parent("map");
-//   textAlign(LEFT, TOP);
-//   noLoop();
-// }
-//
-// function draw() {
-//   background(255);
-//   for (let i = 0; i < map.length; i++) {
-//     showTile(map[i], topcorner);
-//   }
-// }
-
 function GetURLParameter(param) {
   var pageURL = window.location.search.substring(1);
   var URLVariables = pageURL.split('&');
@@ -252,23 +238,14 @@ window.onload = function() {
 
   socket.on('load_map', function(data) {
     map = data;
-    // for (let i = 0; i < map.length; i++) {
-    //   showTile(map[i], topcorner);
-    // }
+    
   });
 
   socket.on('load_users', function(data) {
     for (let i = 0; i < data.length; i++) {
       users.push(data[i].name.toLowerCase());
     }
-    var out = `<table class="table table-striped table-bordered table-hover table-condensed">
-                <thead>
-                  <tr>
-                    <th>Nom</th>
-                    <th>PV</th>
-                    <th>Objets</th>
-                  </tr>
-                </thead>`;
+    var out = "";
     for (let i = 0; i < data.length; i++) {
       if (data[i].truename == user) {
         out += `<tr class="info"><td>`;
@@ -290,7 +267,6 @@ window.onload = function() {
       }
       out += "</td></tr>";
     }
-    out += "</table>";
     $('#users').html(out);
   });
 
