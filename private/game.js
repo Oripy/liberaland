@@ -14,6 +14,8 @@ var items = {};
 var images = {};
 var users = [];
 var actions = ["tuer", "donne"];
+var world = "";
+var turn = 0;
 
 var map = [];
 var topcorner = {x: 10, y: 10};
@@ -37,6 +39,17 @@ var y_range = 26;
 //     showTile(map[i], topcorner);
 //   }
 // }
+
+function GetURLParameter(param) {
+  var pageURL = window.location.search.substring(1);
+  var URLVariables = pageURL.split('&');
+  for (var i = 0; i < URLVariables.length; i++) {
+    var parameterName = URLVariables[i].split('=');
+    if (parameterName[0] == param) {
+      return parameterName[1];
+    }
+  }
+}
 
 function insertTextAtCursor(text) {
   var input = $("#input")[0];
@@ -202,6 +215,10 @@ window.onload = function() {
   socket.on('reconnect_failed', function() {
     console.log('Reconnection failed');
   });
+  world = GetURLParameter('world');
+  turn = GetURLParameter('turn');
+
+  $('#admin_link').attr('href', `/admin?world=${world}&turn=${turn}`)
 
   var input = $("#input")[0];
 
@@ -213,8 +230,24 @@ window.onload = function() {
     }
   }
 
-  socket.on('server update', function() {
-    socket.emit('init');
+  socket.on('server update', function(data) {
+    user = data.username;
+    $("#username").text(user);
+    socket.emit('load_items', {world: world, turn: turn});
+    socket.emit('load_users', {world: world, turn: turn});
+    document.getElementById("chatview").innerHTML = "";
+    newmsgs = [null,null,null,null,null,null,null,null,null,null];
+    socket.emit('load_messages', {world: world, turn: turn});
+    socket.emit('load_map', {world: world, turn: turn});
+  });
+
+  socket.on('load_items', function(data) {
+    var options = "";
+    for (let i = 0; i < data.length; i++) {
+      items[data[i].name] = data[i];
+      options += `<img class="items" src="${data[i].image}" id="${data[i].name}" onclick="click_item(this)" title="${data[i].name}">`;
+    }
+    $("#options").html(options);
   });
 
   socket.on('load_map', function(data) {
@@ -222,22 +255,6 @@ window.onload = function() {
     // for (let i = 0; i < map.length; i++) {
     //   showTile(map[i], topcorner);
     // }
-  });
-
-  socket.on('init', function(data) {
-    user = data.username;
-    $("#username").text(user);
-
-    // reset current state
-    document.getElementById("chatview").innerHTML = "";
-    newmsgs = [null,null,null,null,null,null,null,null,null,null];
-    var options = "";
-    for (let i = 0; i < data.items.length; i++) {
-      items[data.items[i].name] = data.items[i];
-      options += '<img class="items" src="'+data.items[i].image+'" id="'+data.items[i].name+'" onclick="click_item(this)" title="'+data.items[i].name+'">';
-    }
-    document.getElementById("options").innerHTML = options;
-    showInfo("Connecté !", "success");
   });
 
   socket.on('load_users', function(data) {
@@ -287,6 +304,8 @@ window.onload = function() {
   // send the message
   var send_line = function() {
     socket.emit('message', {
+      world: world,
+      turn: turn,
       message: input.value,
       parent: msgselected
     });

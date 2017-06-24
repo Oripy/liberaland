@@ -7,6 +7,20 @@ var approve_item = function() { return undefined; };
 var add_item = function() { return undefined; };
 var map_select = function() { return undefined; };
 
+var world = "";
+var turn = 0;
+
+function GetURLParameter(param) {
+  var pageURL = window.location.search.substring(1);
+  var URLVariables = pageURL.split('&');
+  for (var i = 0; i < URLVariables.length; i++) {
+    var parameterName = URLVariables[i].split('=');
+    if (parameterName[0] == param) {
+      return parameterName[1];
+    }
+  }
+}
+
 function strToNum(value) {
   var out = 0;
   value = value.toUpperCase();
@@ -24,6 +38,7 @@ function numToStr(value) {
   } while (value > 0);
   return out;
 }
+
 function url_check(value) {
   if (testurl.test(value)) {
     var url = value;
@@ -35,8 +50,21 @@ function url_check(value) {
 
 window.onload = function() {
   var socket = io.connect();
+  socket.on('connect_error', function() {
+    console.log('Connection failed');
+  });
+  socket.on('reconnect_failed', function() {
+    console.log('Reconnection failed');
+  });
+
+  world = GetURLParameter('world');
+  turn = GetURLParameter('turn');
+
   socket.on('server update', function() {
-    socket.emit('load_admin');
+    socket.emit('load_all_items', {world: world, turn: turn});
+    socket.emit('load_users', {world: world, turn: turn});
+    socket.emit('load_messages', {world: world, turn: turn});
+    socket.emit('load_map', {world: world, turn: turn});
   });
 
   approve_item = function(elt) {
@@ -51,9 +79,16 @@ window.onload = function() {
     var image = document.getElementById('item_image').value;
     if ((name != "") && (image != "")) {
       socket.emit('new item', {
+        world: world,
         name: name,
         image: image
       });
+    }
+  }
+
+  remove_item = function(elt) {
+    if (confirm("Vraiment supprimer ?")) {
+      socket.emit('remove_item', { id: elt.getAttribute('data-id') });
     }
   }
 
@@ -67,18 +102,21 @@ window.onload = function() {
       var number = document.getElementById('map_number_'+i).value;
       if ((item != "") && (number != "")) {
         items.push({
+          world: world,
           name: item,
           number: number
         });
       }
     }
-    var newdoc = {
+    var newchunk = {
+      world: world,
+      turn: turn,
       x: x,
       y: y,
       type: type,
       items: JSON.stringify(items)
     };
-    socket.emit('change_chunk', newdoc);
+    socket.emit('change_chunk', newchunk);
   }
 
   map_select = function(elt) {
@@ -155,7 +193,7 @@ window.onload = function() {
     document.getElementById('users').innerHTML = out;
   });
 
-  socket.on('load_items', function(items) {
+  socket.on('load_all_items', function(items) {
     var out = `<table class="table table-striped table-bordered table-hover table-condensed">
                 <thead>
                   <tr>
@@ -164,6 +202,7 @@ window.onload = function() {
                     <th>image</th>
                     <th>image petit</th>
                     <th>image url</th>
+                    <th>supprimer</th>
                   </tr>
                 </thead>`;
     var datalist = '<datalist id="items_list">';
@@ -174,7 +213,7 @@ window.onload = function() {
       if (items[i].approved === true) {
         out += '<input type="checkbox" onclick="approve_item(this)" id="'+items[i]._id+'" checked>';
       } else {
-        out += '<input type="checkbox" onclick="approve_item(this)"  id="'+items[i]._id+'">';
+        out += '<input type="checkbox" onclick="approve_item(this)" id="'+items[i]._id+'">';
       }
       out += "</td><td>";
       if (items[i].name) {
@@ -192,6 +231,8 @@ window.onload = function() {
       if (items[i].image) {
         out += items[i].image;
       }
+      out += "</td><td>";
+      out += `<button onclick="remove_item(this)" data-id="${items[i]._id}">Supprimer</button>`;
       out += "</td></tr>";
     }
     out += '<tr><td>Ajout :</td><td><input type="text" id="item_name"></td><td><input type="text" id="item_image"></td><td><button onclick="add_item()">Ajouter</button></td></tr></table>';
@@ -200,6 +241,9 @@ window.onload = function() {
   });
 
   socket.on('load_map', function(tiles) {
+    if (tiles.length == 0) {
+      tiles.push({x: 0, y: 0, type: "", items: []});
+    }
     var out = '<table id="mapview">';
     min_x = Infinity;
     min_y = Infinity;

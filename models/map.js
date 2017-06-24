@@ -4,6 +4,10 @@ const Schema = mongoose.Schema;
 // MongoDB Schema for the map chunk data
 var MapSchema = Schema(
   {
+    // world
+    world: {type: Schema.ObjectId, ref: 'World'},
+    // turn
+    turn: {type: Number},
     // x coordinate
     x: {type: Number, required: true},
     // y coordinate

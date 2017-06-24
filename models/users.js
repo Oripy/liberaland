@@ -12,17 +12,8 @@ var UsersSchema = Schema(
     salt: {type: String, required: true},
     // hash of the password
     hash: {type: String, required: true},
-    // array of map coordinates belonging to this player
-    properties: [{type: Schema.ObjectId, ref: 'Map'}],
-    // array of items belonging to this player
-    items: [{
-      item: {type: Schema.ObjectId, ref: 'Items'},
-      number: {type: Number}
-    }],
     // flag if user has access to admin pages
-    admin: {type: Boolean, default: false},
-    // number of VP of this user
-    victory_points: {type: Number}
+    admin: {type: Boolean, default: false}
   }
 );
 

@@ -15,15 +15,18 @@ app.set('port', (process.env.PORT || 5000));
 // set up Mongoose connection
 const mongoose = require('mongoose');
 mongoose.Promise = global.Promise;
-mongoose.connect('mongodb://'+process.env.MG_USER+":"+process.env.MG_PASS+"@"+process.env.MG_HOST+":"+process.env.MG_PORT+"/"+process.env.MG_DB);
+mongoose.connect(process.env.MONGODB_URI);
 //mongoose.connect('mongodb://127.0.0.1/ncfmldata');
 var db = mongoose.connection;
 db.on('error', console.error.bind(console, 'MongoDB connection error: '));
 
+var Users = require(path.join(__dirname, '/models/users'));
+
+var World = require(path.join(__dirname, '/models/world'));
 var Items = require(path.join(__dirname, '/models/items'));
 var Maps = require(path.join(__dirname, '/models/map'));
-var Users = require(path.join(__dirname, '/models/users'));
 var Messages = require(path.join(__dirname, '/models/messages'));
+var Status = require(path.join(__dirname, '/models/status'));
 
 // config
 app.set('view engine', 'ejs');
@@ -36,7 +39,7 @@ var sessionMiddleware = session({
   store: new FileStore(),
   resave: false, // don't save session if unmodified
   saveUninitialized: false, // don't create session until something stored
-  secret: 'StrokeEnsureExpoBrokers'
+  secret: process.env.SECRET
 });
 
 io.use(function(socket, next) {
@@ -104,8 +107,9 @@ app.get('/', function(req, res){
 
 app.use('/', express.static(path.join(__dirname, 'public')));
 //app.use('/images', restrict, express.static(path.join(__dirname, 'private/images')));
-app.use('/game', restrict, express.static(path.join(__dirname, 'private')));
+app.use('/private', restrict, express.static(path.join(__dirname, 'private')));
 app.use('/admin', restrict_admin, express.static(path.join(__dirname, 'admin')));
+app.use('/images', restrict_admin, express.static(path.join(__dirname, 'private/images')));
 
 app.get('/logout', function(req, res){
   // destroy the user's session to log them out
@@ -165,6 +169,27 @@ app.post('/newuser', function(req, res){
   });
 });
 
+app.post('/game', restrict, function(req, res) {
+  new World({name: req.body.name}).save(function(err, world) {
+    if (err) throw err;
+    res.redirect(`/game?world=${world._id}&turn=${world.turn}`);
+  });
+});
+
+app.get('/game', restrict, function(req, res) {
+  if (req.query.world) {
+    World.findOne().where('_id', req.query.world).exec(function(err, world) {
+      if (world) {
+        res.sendFile(path.join(__dirname, '/private/game.html'));
+      } else {
+        res.sendFile(path.join(__dirname, '/private/world.html'));
+      }
+    });
+  } else {
+    res.sendFile(path.join(__dirname, '/private/world.html'));
+  }
+});
+
 io.sockets.on('connection', function(socket) {
   var name = socket.request.session.user.name;
   Users.findOne().where('name', name).exec( function(err, user) {
@@ -186,40 +211,62 @@ io.sockets.on('connection', function(socket) {
       }
     }
 
-    socket.on('init', function(data) {
-      Items.find({approved: true}).exec( function(err, items_list) {
+    socket.on('load_worlds', function(data) {
+      socket.emit('username', user.truename);
+      World.find().exec(function(err, worlds) {
         if (err) throw err;
-        Users.find().exec( function(err, users_list) {
-          if (err) throw err;
-          for (let user in users_list) {
-            users_list[user].hash = "hidden";
-            users_list[user].salt = "hidden";
-          }
-          socket.emit('init', {
-            username: user.truename,
-            items: items_list
-          });
-          socket.emit('load_users', users_list);
-
-          Messages.find().populate('user').sort({'_id': 1}).exec( function(err, messages) {
-            if (err) throw err;
-            for (let i = 0; i < messages.length; i++) {
-              emitMessage(messages[i], false);
-            }
-          });
-        });
+        socket.emit('load_worlds', {worlds: worlds});
       });
-      Maps.find().populate('items.item').exec( function(err, tiles) {
+    });
+
+    socket.on('load_users', function(data) {
+      Users.find().exec(function(err, users_list) {
+        if (err) throw err;
+        for (let user in users_list) {
+          users_list[user].hash = "hidden";
+          users_list[user].salt = "hidden";
+        }
+        socket.emit('load_users', users_list);
+      });
+    });
+
+    socket.on('load_items', function(data) {
+      Items.find({approved: true, world: data.world}).exec( function(err, items_list) {
+        if (err) throw err;
+        socket.emit('load_items', items_list);
+      });
+    });
+
+    socket.on('load_all_items', function(data) {
+      Items.find({world: data.world}).exec( function(err, items_list) {
+        if (err) throw err;
+        socket.emit('load_all_items', items_list);
+      });
+    });
+
+    socket.on('load_messages', function(data) {
+      Messages.find({world: data.world, turn: data.turn}).populate('user').sort({'_id': 1}).exec( function(err, messages) {
+        if (err) throw err;
+        for (let i = 0; i < messages.length; i++) {
+          emitMessage(messages[i], false);
+        }
+      });
+    });
+
+    socket.on('load_map', function(data) {
+      Maps.find({world: data.world, turn: data.turn}).populate('items.item').exec(function(err, tiles) {
         if (err) throw err;
         socket.emit('load_map', tiles);
       });
     });
 
-    socket.on('message', function(input) {
+    socket.on('message', function(data) {
       var newmessage = new Messages({
+        world: data.world,
+        turn: data.turn,
         user: user._id,
-        message: input.message,
-        parent: input.parent,
+        message: data.message,
+        parent: data.parent,
         checked: false
       });
       newmessage.save(function(err, message) {
@@ -231,33 +278,36 @@ io.sockets.on('connection', function(socket) {
       });
     });
 
-    socket.on('load_admin', function(data) {
-      Users.find().exec( function(err, users_list) {
-        if (err) throw err;
-        for (let user in users_list) {
-          users_list[user].hash = "hidden";
-          users_list[user].salt = "hidden";
-        }
-        socket.emit('load_users', users_list);
-      });
-      Items.find().exec( function(err, items_list) {
-        if (err) throw err;
-        socket.emit('load_items', items_list);
-      });
-      Maps.find().populate('items.item').exec( function(err, tiles) {
-        if (err) throw err;
-        socket.emit('load_map', tiles);
-      });
-    });
+    // socket.on('load_admin', function(data) {
+    //   Users.find().exec( function(err, users_list) {
+    //     if (err) throw err;
+    //     for (let user in users_list) {
+    //       users_list[user].hash = "hidden";
+    //       users_list[user].salt = "hidden";
+    //     }
+    //     socket.emit('load_users', users_list);
+    //   });
+    //   Items.find().exec( function(err, items_list) {
+    //     if (err) throw err;
+    //     socket.emit('load_items', items_list);
+    //   });
+    //   Maps.find().populate('items.item').exec( function(err, tiles) {
+    //     if (err) throw err;
+    //     socket.emit('load_map', tiles);
+    //   });
+    // });
 
     socket.on('new item', function(data) {
+      console.log(data);
       var newitem = new Items({
+        world: data.world,
         name: data.name,
         image: data.image,
         approved: false
       });
-      newitem.save(function(err, message) {
+      newitem.save(function(err, item) {
         if (err) throw err;
+        console.log('item saved', item);
         io.emit('server update');
       });
     });
@@ -269,10 +319,19 @@ io.sockets.on('connection', function(socket) {
       });
     });
 
+    socket.on('remove_item', function(data) {
+      Items.remove({ _id: data.id }, function(err, message) {
+        if (err) throw err;
+        io.emit('server update');
+      });
+    });
+
     socket.on('change_chunk', function(data) {
       Items.find().exec( function(err, items_list) {
         if (err) throw err;
         var newdoc = {
+          world: data.world,
+          turn: data.turn,
           x: data.x,
           y: data.y,
           type: data.type,
@@ -282,7 +341,7 @@ io.sockets.on('connection', function(socket) {
         for (let i = 0; i < items.length; i++) {
           var current_item_id = "";
           for (let j = 0; j < items_list.length; j++) {
-            if (items_list[j].name == items[i].name) {
+            if ((items_list[j].name == items[i].name) && (items_list[j].world == items[i].world)) {
               current_item_id = items_list[j]._id;
               break;
             }
@@ -305,7 +364,7 @@ io.sockets.on('connection', function(socket) {
       console.log('user disconnected');
     });
 
-    socket.emit('server update');
+    socket.emit('server update', {username: user.truename});
   });
 });
 

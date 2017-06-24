@@ -4,6 +4,10 @@ const Schema = mongoose.Schema;
 // MongoDB Schema for Chat messages
 var MessagesSchema = Schema(
   {
+    // world
+    world: {type: Schema.ObjectId, ref: 'World'},
+    // turn
+    turn: {type: Number},
     // id of the author from Users Schema
     user: {type: Schema.ObjectId, ref: 'Users', required: true},
     // message content
