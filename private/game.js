@@ -148,33 +148,33 @@ function pretty(message, id, timestamp, author) {
   message = message.replace(coordinates, function(match, x, y, offset, string) {
     x_num = strToNum(x);
     if ((x_num < x_range) && (parseInt(y) < y_range) && (parseInt(y) > 0)) {
-      return '<span class="coord">'+x+y+'</span>';
+      return `<span class="coord">${x}${y}</span>`;
     } else {
-      return '<span class="coord" style="color:red">'+x+y+'</span>';
+      return `<span class="coord" style="color:red">${x}${y}</span>`;
     }
   });
   message = message.replace(player, function(match, name, offset, string) {
     if (users.includes(name.toLowerCase())) {
-      return '<span class="player">'+name+'</span>';
+      return `<span class="player">${name}</span>`;
     } else {
-      return '<span class="player" style="color:red">'+name+'</span>';
+      return `<span class="player" style="color:red">${name}</span>`;
     }
   });
   message = message.replace(action, function(match, name, offset, string) {
     if (actions.includes(name)) {
-      return '<span class="action">'+name+'</span>';
+      return `<span class="action">${name}</span>`;
     } else {
-      return '<span class="action" style="color:red">'+name+'</span>';
+      return `<span class="action" style="color:red">${name}</span>`;
     }
   });
   message = message.replace(money, function(match, name, offset, string) {
-    return '<span class="money">'+name+'</span>';
+    return `<span class="money">${name}</span>`;
   });
   message = message.replace(item, function(match, name, offset, string) {
     if (items[name]) {
-      return '<img class="items" src="'+items[name].image+'">';
+      return `<img class="items" src="${items[name].image}">`;
     } else {
-      return '<img class="items" src="images/none.png">';
+      return `<img class="items" src="images/none.png">`;
     }
   });
 
@@ -186,12 +186,12 @@ function pretty(message, id, timestamp, author) {
   if (id !== undefined) {
     date = new Date(timestamp);
     // message = '<span class="timestamp">' + date.toLocaleString() + '</span> <span class="author">' + author + ': </span>' + message;
-    message = '<span class="author">' + author + ': </span>' + message;
-    message = '<img class="msgtype" src="images/'+parse(message)[0]+'.png" title="'+date.toLocaleString()+'"> ' + message;
+    message = `<span class="author">${author}: </span>${message}`;
+    message = `<img class="msgtype" src="images/${parse(message)[0]}.png" title="${date.toLocaleString()}">${message}`;
     if (cited) {
-      message = '<span class="highlight">' + message + '</div>';
+      message = `<span class="highlight">${message}</div>`;
     }
-    message = '<div class="message" id="'+id+'" onclick="select_message(this)">' + message + '</div>';
+    message = `<div class="message" id="${id}" onclick="select_message(this)">${message}</div>`;
   }
   return message;
 }
@@ -314,23 +314,25 @@ window.onload = function() {
   }
 
   socket.on('message', function(data) {
-    if (data.parent == null) {
-      data.parent = "chatview";
-    }
-    var value = pretty(data.message, data.id, data.timestamp, data.author);
-    var old = document.getElementById(data.parent).innerHTML;
-    document.getElementById(data.parent).innerHTML = old + value;
-    document.getElementById(data.id).scrollIntoView(true);
-    newmsgs.push(data.id);
-    for (let i = 0; i < 10; i++) {
-      if (newmsgs[i]) {
-        document.getElementById(newmsgs[i]).classList.remove("new-"+(10-i));
+    if ((data.world == world) && (data.turn == turn)) {
+      if (data.parent == null) {
+        data.parent = "chatview";
       }
-      if (newmsgs[i+1]) {
-        document.getElementById(newmsgs[i+1]).classList.add("new-"+(10-i));
+      var value = pretty(data.message, data.id, data.timestamp, data.author);
+      var old = document.getElementById(data.parent).innerHTML;
+      document.getElementById(data.parent).innerHTML = old + value;
+      document.getElementById(data.id).scrollIntoView(true);
+      newmsgs.push(data.id);
+      for (let i = 0; i < 10; i++) {
+        if (newmsgs[i]) {
+          document.getElementById(newmsgs[i]).classList.remove("new-"+(10-i));
+        }
+        if (newmsgs[i+1]) {
+          document.getElementById(newmsgs[i+1]).classList.add("new-"+(10-i));
+        }
       }
+      newmsgs.shift();
     }
-    newmsgs.shift();
   });
 
   function showInfo(info, type="info") {

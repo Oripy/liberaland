@@ -197,6 +197,8 @@ io.sockets.on('connection', function(socket) {
 
     function emitMessage(message, all_clients) {
       data = {
+        world: message.world,
+        turn: message.turn,
         timestamp: message._id.getTimestamp(),
         author: message.user.truename,
         message: message.message,
